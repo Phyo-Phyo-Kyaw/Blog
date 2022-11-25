@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+
+</head>
+<body>
+    <nav class="navbar bg-danget navbar-dark">
+        <div class="container" style="max-width: 500px;">
+            <a href="#" class="navbar-brand">Category Client</a>
+        </div>
+    </nav>
+      <h3>Categoty Client</h3>
+      <input type="text"> <button>Add</button>
+      <ul></ul>
+      <script>
+            const api = "http://localhost:8000/api";
+
+            fetch(`${api}/categories`)
+                  .then(res => res.json())
+                  .then(json => {
+                        json.map(category => {
+                              createElement(category);
+                        })
+                  })
+                  .catch(() => console.log("Error Fetching data"));
+
+            const createElement = function(category) {
+                let li = document.createElement('li');
+                  let span = document.createElement('span');
+                  span.textContent = category.name ;
+                  li.appendChild(span);
+                  let del = document.createElement('a');
+                  del.setAttribute('href' , '#');
+                  del.textContent = '\t\tDEL';
+                  li.appendChild(del);
+                  del.onclick = function() {
+                    fetch(`${api}/categories/${category.id}` , {
+                        method : 'DELETE' ,
+                    });
+                    li.remove();
+                  }
+                  li.ondblclick = function() {
+                    let name = prompt('Enter name' , category.name);
+                    if(!name) return false ;
+                    fetch(`${api}/categories/${category.id}` , {
+                        method : 'PUT' ,
+                        headers : {
+                            'content-type' : 'application/json' ,
+                        } ,
+                        body : JSON.stringify({name}) ,
+                    });
+                    span.textContent = name ;
+                  }
+                  document.querySelector('ul').appendChild(li);
+            }
+
+            document.querySelector("button").onclick = function() {
+
+                let name = document.querySelector('input').value ;
+                if(!name) return false ;
+                fetch(`${api}/categories` , {
+                    method : 'POST'  ,
+                    headers : {
+                        'content-type' : 'application/json'
+                    } ,
+                    body : JSON.stringify({name}) ,
+                })
+                .then(res => res.json())
+                .then(category => createElement(category));
+                document.querySelector('input').value = '';
+            }
+      </script>
+</body>
+</html>
